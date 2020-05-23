@@ -693,4 +693,8 @@
     <value>A(z) "{0}" fájlkiterjesztés jelenleg nem támogatott</value>
     <comment>FileRenameError: Extension is not currently supported. {0} stands for the file extension string.</comment>
   </data>
+  <data name="LanguagePreference_SystemDefault" xml:space="preserve">
+    <value>System Default</value>
+    <comment>LanguagePreference: "System Default" option</comment>
+  </data>
 </root>

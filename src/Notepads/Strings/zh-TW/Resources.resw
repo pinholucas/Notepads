@@ -693,4 +693,8 @@
     <value>目前尚未支援「{0}」副檔名</value>
     <comment>FileRenameError: Extension is not currently supported. {0} stands for the file extension string.</comment>
   </data>
+  <data name="LanguagePreference_SystemDefault" xml:space="preserve">
+    <value>System Default</value>
+    <comment>LanguagePreference: "System Default" option</comment>
+  </data>
 </root>

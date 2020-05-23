@@ -693,4 +693,8 @@
     <value>A extensão "{0}" não é suportada no momento</value>
     <comment>FileRenameError: Extension is not currently supported. {0} stands for the file extension string.</comment>
   </data>
+  <data name="LanguagePreference_SystemDefault" xml:space="preserve">
+    <value>Padrão do Sistema</value>
+    <comment>LanguagePreference: "System Default" option</comment>
+  </data>
 </root>
