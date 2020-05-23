@@ -20,6 +20,7 @@
     using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Controls.Primitives;
     using Windows.UI.Xaml.Input;
 
     public enum TextEditorMode
@@ -51,6 +52,7 @@
         public event EventHandler FontZoomFactorChanged;
         public event EventHandler FileSaved;
         public event EventHandler FileReloaded;
+        public event EventHandler FileRenamed;
 
         public Guid Id { get; set; }
 
@@ -77,19 +79,33 @@
             get => _editingFile;
             private set
             {
-                if (value == null)
-                {
-                    EditingFileName = null;
-                    EditingFilePath = null;
-                    FileType = FileType.TextFile;
-                }
-                else
-                {
-                    EditingFileName = value.Name;
-                    EditingFilePath = value.Path;
-                    FileType = FileTypeUtility.GetFileTypeByFileName(value.Name);
-                }
                 _editingFile = value;
+                UpdateDocumentInfo();
+            }
+        }
+
+        private void UpdateDocumentInfo()
+        {
+            if (EditingFile == null)
+            {
+                EditingFileName = null;
+                EditingFilePath = null;
+                FileType = FileTypeUtility.GetFileTypeByFileName(FileNamePlaceholder);
+            }
+            else
+            {
+                EditingFileName = EditingFile.Name;
+                EditingFilePath = EditingFile.Path;
+                FileType = FileTypeUtility.GetFileTypeByFileName(EditingFile.Name);
+            }
+
+            // Hide content preview if current file type is not supported for previewing
+            if (!FileTypeUtility.IsPreviewSupported(FileType))
+            {
+                if (SplitPanel != null && SplitPanel.Visibility == Visibility.Visible)
+                {
+                    ShowHideContentPreview();
+                }   
             }
         }
 
@@ -273,6 +289,22 @@
             });
         }
 
+        public async Task RenameAsync(string newFileName)
+        {
+            if (EditingFile == null)
+            {
+                FileNamePlaceholder = newFileName;
+            }
+            else
+            {
+                await EditingFile.RenameAsync(newFileName);
+            }
+
+            UpdateDocumentInfo();
+
+            FileRenamed?.Invoke(this, EventArgs.Empty);
+        }
+
         public string GetText()
         {
             return TextEditorCore.GetText();
@@ -414,7 +446,7 @@
                 new KeyboardCommand<KeyRoutedEventArgs>(true, false, true, VirtualKey.F, (args) => ShowFindAndReplaceControl(showReplaceBar: true)),
                 new KeyboardCommand<KeyRoutedEventArgs>(true, false, false, VirtualKey.H, (args) => ShowFindAndReplaceControl(showReplaceBar: true)),
                 new KeyboardCommand<KeyRoutedEventArgs>(true, false, false, VirtualKey.G, (args) => ShowGoToControl()),
-                new KeyboardCommand<KeyRoutedEventArgs>(false, true, false, VirtualKey.P, (args) => ShowHideContentPreview()),
+                new KeyboardCommand<KeyRoutedEventArgs>(false, true, false, VirtualKey.P, (args) => { if (FileTypeUtility.IsPreviewSupported(FileType)) ShowHideContentPreview(); }),
                 new KeyboardCommand<KeyRoutedEventArgs>(false, true, false, VirtualKey.D, (args) => ShowHideSideBySideDiffViewer()),
                 new KeyboardCommand<KeyRoutedEventArgs>(VirtualKey.F3, (args) =>
                     InitiateFindAndReplace(new FindAndReplaceEventArgs (_lastSearchContext, string.Empty, FindAndReplaceMode.FindOnly, SearchDirection.Next))),
@@ -486,7 +518,7 @@
             }
 
             TextEditorCore.TextWrapping = metadata.WrapWord ? TextWrapping.Wrap : TextWrapping.NoWrap;
-            TextEditorCore.FontSize = metadata.FontZoomFactor * EditorSettingsService.EditorFontSize;
+            TextEditorCore.FontSize = metadata.FontZoomFactor * AppSettingsService.EditorFontSize;
             TextEditorCore.SetTextSelectionPosition(metadata.SelectionStartPosition, metadata.SelectionEndPosition);
             TextEditorCore.SetScrollViewerInitPosition(metadata.ScrollViewerHorizontalOffset, metadata.ScrollViewerVerticalOffset);
             TextEditorCore.ClearUndoQueue();
@@ -715,6 +747,11 @@
             {
                 TextEditorCore.ResetFocusAndScrollToPreviousPosition();
             }
+        }
+
+        public FlyoutBase GetContextFlyout()
+        {
+            return TextEditorCore.ContextFlyout;
         }
 
         public void CopySelectedTextToWindowsClipboard(TextControlCopyingToClipboardEventArgs args)
