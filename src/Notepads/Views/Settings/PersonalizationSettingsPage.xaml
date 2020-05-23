@@ -68,9 +68,9 @@
                     <ToggleSwitch x:Uid="/Settings/PersonalizationPage_AccentColorSettings_UseWindowsAccentColorToggleSwitch" Style="{StaticResource CustomToggleSwitchStyle}" x:Name="AccentColorToggle" Margin="0,0,0,8"/>
                     <Viewbox MaxWidth="300" Stretch="Fill">
                         <ColorPicker
-                            x:Name="AccentColorPicker"
-                            ColorSpectrumShape="Ring"
+                            x:Name="AccentColorPicker"                            
                             IsColorSliderVisible="True"
+                            IsMoreButtonVisible="True"
                             IsColorChannelTextInputVisible="True"
                             IsHexInputVisible="True"
                             IsAlphaEnabled="False"
