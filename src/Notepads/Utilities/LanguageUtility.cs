@@ -3,11 +3,13 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Windows.ApplicationModel.Resources;
     using Windows.Globalization;
 
     public class LanguageItem
     {
         private string _id;
+        private static readonly ResourceLoader _resourceLoader = ResourceLoader.GetForCurrentView();
 
         public string ID
         {
@@ -15,7 +17,7 @@
             set
             {
                 _id = value;
-                Name = string.IsNullOrEmpty(value) ? "System Default" : new CultureInfo(value).NativeName;
+                Name = string.IsNullOrEmpty(value) ? _resourceLoader.GetString("LanguagePreference_SystemDefault") : new CultureInfo(value).NativeName;
             }
         }
 
